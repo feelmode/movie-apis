@@ -14,41 +14,55 @@ import (
 	"gorm.io/gorm"
 )
 
+func createResp(req movie.Movie) movie.Response {
+	return movie.Response{
+		ID:          req.ID,
+		Title:       req.Title,
+		Description: req.Description,
+		Rating:      req.Rating,
+		Image:       req.Image,
+		CreatedAt:   req.CreatedAt,
+		UpdatedAt:   req.UpdatedAt,
+	}
+}
+
+func getDb() *gorm.DB {
+	dsn := "host=localhost user=qosdil password='' dbname=movies port=5432 sslmode=disable TimeZone=UTC"
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		fmt.Println("error: " + err.Error())
+		// resp.Write(w, http.StatusInternalServerError, nil, nil)
+	}
+
+	return db
+}
+
 func DeleteByIDHandler(w http.ResponseWriter, r *http.Request) {
+	var movie movie.Movie
+	id, _ := strconv.Atoi(mux.Vars(r)["id"])
+	getDb().Delete(&movie, id)
 	resp.Write(w, http.StatusNoContent, nil, nil)
 }
 
 func GetHandler(w http.ResponseWriter, r *http.Request) {
-	movies := []movie.Movie{}
-	movies = append(movies, movie.Movie{
-		ID:          1,
-		Title:       "Title 1",
-		Description: "Desc 1",
-		Rating:      7,
-		Image:       "",
-	})
-	movies = append(movies, movie.Movie{
-		ID:          2,
-		Title:       "Title 2",
-		Description: "Desc 3",
-		Rating:      9,
-		Image:       "",
-	})
+	response := []movie.Response{}
+	db := getDb()
+	rows, _ := db.Find(&[]movie.Movie{}).Rows()
+	defer rows.Close()
+	for rows.Next() {
+		var movie movie.Movie
+		db.ScanRows(rows, &movie)
+		response = append(response, createResp(movie))
+	}
 
-	resp.Write(w, http.StatusOK, nil, movies)
+	resp.Write(w, http.StatusOK, nil, response)
 }
 
 func GetByIDHandler(w http.ResponseWriter, r *http.Request) {
+	var movie movie.Movie
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
-	movie := movie.Movie{
-		ID:          uint8(id),
-		Title:       "Title 1",
-		Description: "Desc 1",
-		Rating:      7,
-		Image:       "",
-	}
-
-	resp.Write(w, http.StatusOK, nil, movie)
+	getDb().First(&movie, id)
+	resp.Write(w, http.StatusOK, nil, createResp(movie))
 }
 
 func PatchHandler(w http.ResponseWriter, r *http.Request) {
@@ -82,15 +96,6 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	dsn := "host=localhost user=qosdil password='' dbname=movies port=5432 sslmode=disable TimeZone=UTC"
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		fmt.Println("error: " + err.Error())
-		resp.Write(w, http.StatusInternalServerError, nil, nil)
-	}
-
-	db.Create(&reqResp)
-	response := movie.Response{ID: reqResp.ID, Title: reqResp.Title, Description: reqResp.Description, Rating: reqResp.Rating, Image: reqResp.Image,
-		CreatedAt: reqResp.CreatedAt, UpdatedAt: reqResp.UpdatedAt}
-	resp.Write(w, http.StatusOK, nil, response)
+	getDb().Create(&reqResp)
+	resp.Write(w, http.StatusOK, nil, createResp(reqResp))
 }
