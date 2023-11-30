@@ -90,5 +90,7 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	db.Create(&reqResp)
-	resp.Write(w, http.StatusOK, nil, reqResp)
+	response := movie.Response{ID: reqResp.ID, Title: reqResp.Title, Description: reqResp.Description, Rating: reqResp.Rating, Image: reqResp.Image,
+		CreatedAt: reqResp.CreatedAt, UpdatedAt: reqResp.UpdatedAt}
+	resp.Write(w, http.StatusOK, nil, response)
 }

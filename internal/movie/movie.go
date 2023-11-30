@@ -12,3 +12,13 @@ type Movie struct {
 	CreatedAt   string `json:"created_at" gorm:"default:CURRENT_TIMESTAMP()"`
 	UpdatedAt   string `json:"updated_at" gorm:"default:CURRENT_TIMESTAMP()"`
 }
+
+type Response struct {
+	ID          uint8  `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Rating      uint8  `json:"rating"`
+	Image       string `json:"image"`
+	CreatedAt   string `json:"created_at"`
+	UpdatedAt   string `json:"updated_at"`
+}
