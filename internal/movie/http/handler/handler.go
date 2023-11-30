@@ -68,7 +68,7 @@ func (h Handler) GetByIDHandler(w http.ResponseWriter, r *http.Request) {
 	resp.Write(w, http.StatusOK, nil, createResp(movie))
 }
 
-func (h Handler) PatchHandler(w http.ResponseWriter, r *http.Request) {
+func (h Handler) PatchByIDHandler(w http.ResponseWriter, r *http.Request) {
 	var req movie.Movie
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {

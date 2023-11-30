@@ -26,7 +26,7 @@ func main() {
 	r.HandleFunc("/movies", h.PostHandler).Methods("POST")
 	r.HandleFunc("/movies/{id}", h.DeleteByIDHandler).Methods("DELETE")
 	r.HandleFunc("/movies/{id}", h.GetByIDHandler).Methods("GET")
-	r.HandleFunc("/movies/{id}", h.PatchHandler).Methods("PATCH")
+	r.HandleFunc("/movies/{id}", h.PatchByIDHandler).Methods("PATCH")
 
 	// Bind to a port and pass our router in
 	log.Fatal(http.ListenAndServe(":8000", r))
