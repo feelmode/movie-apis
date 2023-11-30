@@ -17,6 +17,7 @@ func main() {
 		json.NewEncoder(w).Encode(map[string]bool{"ok": true})
 	})
 	r.HandleFunc("/movies", movieHttpHandler.GetHandler).Methods("GET")
+	r.HandleFunc("/movies", movieHttpHandler.PostHandler).Methods("POST")
 	r.HandleFunc("/movies/{id}", movieHttpHandler.DeleteByIDHandler).Methods("DELETE")
 	r.HandleFunc("/movies/{id}", movieHttpHandler.GetByIDHandler).Methods("GET")
 
