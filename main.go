@@ -16,9 +16,9 @@ func main() {
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(map[string]bool{"ok": true})
 	})
-	r.HandleFunc("/movies", movieHttpHandler.GetHandler)
+	r.HandleFunc("/movies", movieHttpHandler.GetHandler).Methods("GET")
 	r.HandleFunc("/movies/{id}", movieHttpHandler.DeleteByIDHandler).Methods("DELETE")
-	r.HandleFunc("/movies/{id}", movieHttpHandler.GetByIDHandler)
+	r.HandleFunc("/movies/{id}", movieHttpHandler.GetByIDHandler).Methods("GET")
 
 	// Bind to a port and pass our router in
 	log.Fatal(http.ListenAndServe(":8000", r))
