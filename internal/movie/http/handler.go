@@ -15,15 +15,15 @@ func DeleteByIDHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetHandler(w http.ResponseWriter, r *http.Request) {
-	movies := []movie.Resp{}
-	movies = append(movies, movie.Resp{
+	movies := []movie.ReqResp{}
+	movies = append(movies, movie.ReqResp{
 		ID:          1,
 		Title:       "Title 1",
 		Description: "Desc 1",
 		Rating:      7,
 		Image:       "",
 	})
-	movies = append(movies, movie.Resp{
+	movies = append(movies, movie.ReqResp{
 		ID:          2,
 		Title:       "Title 2",
 		Description: "Desc 3",
@@ -38,7 +38,7 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 
 func GetByIDHandler(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
-	movie := movie.Resp{
+	movie := movie.ReqResp{
 		ID:          uint8(id),
 		Title:       "Title 1",
 		Description: "Desc 1",

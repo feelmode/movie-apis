@@ -1,6 +1,6 @@
 package movie
 
-type Resp struct {
+type ReqResp struct {
 	ID          uint8  `json:"id"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
