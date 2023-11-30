@@ -17,6 +17,7 @@ func main() {
 		json.NewEncoder(w).Encode(map[string]bool{"ok": true})
 	})
 	r.HandleFunc("/movies", movieHttpHandler.GetHandler)
+	r.HandleFunc("/movies/{id}", movieHttpHandler.DeleteByIDHandler).Methods("DELETE")
 	r.HandleFunc("/movies/{id}", movieHttpHandler.GetByIDHandler)
 
 	// Bind to a port and pass our router in

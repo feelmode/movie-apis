@@ -9,6 +9,11 @@ import (
 	"github.com/gorilla/mux"
 )
 
+func DeleteByIDHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusNoContent)
+}
+
 func GetHandler(w http.ResponseWriter, r *http.Request) {
 	movies := []movie.Resp{}
 	movies = append(movies, movie.Resp{
