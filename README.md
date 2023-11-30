@@ -22,6 +22,14 @@ Create a new database named `movies`.
 
 To create the table, copy the contents of `/scripts/schema.sql`, then paste and execute in a PostgreSQL console.
 
+### Run the Tests
+
+This command will also shows the test coverage.
+
+```
+go test -cover ./internal/movie/http/handler/ -count=1
+```
+
 ### Run the HTTP Server
 
 From inside the repo directory, run the following command:
