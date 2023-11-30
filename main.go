@@ -33,7 +33,7 @@ func main() {
 }
 
 func getDb() *gorm.DB {
-	dsn := "host=localhost user=qosdil password='' dbname=movies port=5432 sslmode=disable TimeZone=UTC"
+	dsn := "host=localhost user=postgres password='' dbname=movies port=5432 sslmode=disable TimeZone=UTC"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic(err.Error())
