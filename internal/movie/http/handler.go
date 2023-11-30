@@ -2,7 +2,7 @@ package handler
 
 import (
 	"encoding/json"
-	"main/movie"
+	"main/internal/movie"
 	"net/http"
 )
 
