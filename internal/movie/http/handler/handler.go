@@ -62,6 +62,11 @@ func GetByIDHandler(w http.ResponseWriter, r *http.Request) {
 	var movie movie.Movie
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
 	getDb().First(&movie, id)
+	if movie.ID == 0 {
+		resp.Write(w, http.StatusNotFound, nil, nil)
+		return
+	}
+
 	resp.Write(w, http.StatusOK, nil, createResp(movie))
 }
 
