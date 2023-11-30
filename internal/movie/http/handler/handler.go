@@ -71,20 +71,38 @@ func GetByIDHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func PatchHandler(w http.ResponseWriter, r *http.Request) {
-	var reqResp movie.Movie
-	err := json.NewDecoder(r.Body).Decode(&reqResp)
+	var req movie.Movie
+	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	_, err = govalidator.ValidateStruct(reqResp)
+	_, err = govalidator.ValidateStruct(req)
 	if err != nil {
 		resp.Write(w, http.StatusBadRequest, &resp.Error{Code: resp.ERR__BAD_REQUEST_FIELDS, Message: err.Error()}, nil)
 		return
 	}
 
-	resp.Write(w, http.StatusOK, nil, reqResp)
+	var movie movie.Movie
+	id, _ := strconv.Atoi(mux.Vars(r)["id"])
+	db := getDb()
+	db.First(&movie, id)
+
+	// Not found
+	if movie.ID == 0 {
+		resp.Write(w, http.StatusNotFound, nil, nil)
+		return
+	}
+
+	// Save
+	movie.Title = req.Title
+	movie.Description = req.Description
+	movie.Rating = req.Rating
+	movie.Image = req.Image
+	db.Save(&movie)
+
+	resp.Write(w, http.StatusOK, nil, createResp(movie))
 }
 
 func PostHandler(w http.ResponseWriter, r *http.Request) {
