@@ -51,6 +51,19 @@ func GetByIDHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(movie)
 }
 
+func PatchHandler(w http.ResponseWriter, r *http.Request) {
+	var reqResp movie.ReqResp
+	err := json.NewDecoder(r.Body).Decode(&reqResp)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(reqResp)
+}
+
 func PostHandler(w http.ResponseWriter, r *http.Request) {
 	var reqResp movie.ReqResp
 	err := json.NewDecoder(r.Body).Decode(&reqResp)
