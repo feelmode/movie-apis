@@ -3,7 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"main/internal/movie"
-	writer "main/pkg/http/response"
+	resp "main/pkg/http/response"
 	"net/http"
 	"strconv"
 
@@ -11,8 +11,7 @@ import (
 )
 
 func DeleteByIDHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusNoContent)
+	resp.Write(w, http.StatusNoContent, resp.NO_ERROR, nil)
 }
 
 func GetHandler(w http.ResponseWriter, r *http.Request) {
@@ -32,7 +31,7 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 		Image:       "",
 	})
 
-	writer.Write(w, http.StatusOK, movies)
+	resp.Write(w, http.StatusOK, resp.NO_ERROR, movies)
 }
 
 func GetByIDHandler(w http.ResponseWriter, r *http.Request) {
@@ -45,7 +44,7 @@ func GetByIDHandler(w http.ResponseWriter, r *http.Request) {
 		Image:       "",
 	}
 
-	writer.Write(w, http.StatusOK, movie)
+	resp.Write(w, http.StatusOK, resp.NO_ERROR, movie)
 }
 
 func PatchHandler(w http.ResponseWriter, r *http.Request) {
@@ -56,7 +55,7 @@ func PatchHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writer.Write(w, http.StatusOK, reqResp)
+	resp.Write(w, http.StatusOK, resp.NO_ERROR, reqResp)
 }
 
 func PostHandler(w http.ResponseWriter, r *http.Request) {
@@ -67,5 +66,5 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writer.Write(w, http.StatusOK, reqResp)
+	resp.Write(w, http.StatusOK, resp.NO_ERROR, reqResp)
 }
