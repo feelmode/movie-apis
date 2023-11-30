@@ -11,7 +11,7 @@ This repository contains the REST APIs for `/movies` entity. The layout of this 
 ### Clone the Repository
 
 ```
-$ git clone <repo_url>
+git clone <repo_url>
 ```
 
 ### Create Database
@@ -34,7 +34,7 @@ go test -cover ./internal/movie/http/handler/ -count=1
 
 From inside the repo directory, run the following command:
 ```
-$ go run main.go
+go run main.go
 ```
 
 ## List of APIs and Examples
