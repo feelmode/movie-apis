@@ -1,10 +1,10 @@
 # Movies API
 
-This repository contains the REST APIs for `/movies` entity.
+This repository contains the REST APIs for `/movies` entity. The layout of this repository is based on [Standard Go Project Layout](https://github.com/golang-standards/project-layout).
 
 ## Requirements
-- Go (developed with Go v1.20)
-- PostgreSQL (developed with PostgreSQL v14)
+- Go (works well with Go v1.20)
+- PostgreSQL (works well with PostgreSQL v14)
 
 ## Deployment (Dev Mode)
 
@@ -40,7 +40,7 @@ curl --location 'localhost:8000/movies' \
 --header 'Content-Type: application/json' \
 --data '{
     "title": "Title 1",
-    "description": "Desc 11",
+    "description": "Desc 1",
     "rating": 7,
     "image": "image1.jpg"
 }'
