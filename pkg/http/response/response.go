@@ -21,6 +21,7 @@ type Error struct {
 
 func Write(w http.ResponseWriter, status int, err *Error, data interface{}) (resp Response) {
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
 	resp.Data = data
 	if err != nil {
 		switch err.Code {
@@ -33,6 +34,5 @@ func Write(w http.ResponseWriter, status int, err *Error, data interface{}) (res
 	}
 
 	json.NewEncoder(w).Encode(resp)
-	w.WriteHeader(status)
 	return resp
 }
