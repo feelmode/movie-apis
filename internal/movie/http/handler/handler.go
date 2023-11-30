@@ -7,11 +7,12 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/asaskevich/govalidator"
 	"github.com/gorilla/mux"
 )
 
 func DeleteByIDHandler(w http.ResponseWriter, r *http.Request) {
-	resp.Write(w, http.StatusNoContent, resp.NO_ERROR, nil)
+	resp.Write(w, http.StatusNoContent, nil, nil)
 }
 
 func GetHandler(w http.ResponseWriter, r *http.Request) {
@@ -31,7 +32,7 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 		Image:       "",
 	})
 
-	resp.Write(w, http.StatusOK, resp.NO_ERROR, movies)
+	resp.Write(w, http.StatusOK, nil, movies)
 }
 
 func GetByIDHandler(w http.ResponseWriter, r *http.Request) {
@@ -44,7 +45,7 @@ func GetByIDHandler(w http.ResponseWriter, r *http.Request) {
 		Image:       "",
 	}
 
-	resp.Write(w, http.StatusOK, resp.NO_ERROR, movie)
+	resp.Write(w, http.StatusOK, nil, movie)
 }
 
 func PatchHandler(w http.ResponseWriter, r *http.Request) {
@@ -55,7 +56,13 @@ func PatchHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp.Write(w, http.StatusOK, resp.NO_ERROR, reqResp)
+	_, err = govalidator.ValidateStruct(reqResp)
+	if err != nil {
+		resp.Write(w, http.StatusBadRequest, &resp.Error{Code: resp.ERR__BAD_REQUEST_FIELDS, Message: err.Error()}, nil)
+		return
+	}
+
+	resp.Write(w, http.StatusOK, nil, reqResp)
 }
 
 func PostHandler(w http.ResponseWriter, r *http.Request) {
@@ -66,5 +73,11 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp.Write(w, http.StatusOK, resp.NO_ERROR, reqResp)
+	_, err = govalidator.ValidateStruct(reqResp)
+	if err != nil {
+		resp.Write(w, http.StatusBadRequest, &resp.Error{Code: resp.ERR__BAD_REQUEST_FIELDS, Message: err.Error()}, nil)
+		return
+	}
+
+	resp.Write(w, http.StatusOK, nil, reqResp)
 }

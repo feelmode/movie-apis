@@ -6,8 +6,7 @@ import (
 )
 
 const (
-	NO_ERROR    = "" // Need this because caller can't send nil
-	ERR_FOO_BAR = "FOO_BAR"
+	ERR__BAD_REQUEST_FIELDS = "ERR__BAD_REQUEST_FIELDS"
 )
 
 type Response struct {
@@ -20,14 +19,16 @@ type Error struct {
 	Message string `json:"message"`
 }
 
-func Write(w http.ResponseWriter, status int, errCode string, data interface{}) (resp Response) {
+func Write(w http.ResponseWriter, status int, err *Error, data interface{}) (resp Response) {
 	w.Header().Set("Content-Type", "application/json")
 	resp.Data = data
-	switch errCode {
-	case ERR_FOO_BAR:
-		resp.Error = &Error{
-			Code:    "FOO_BAR",
-			Message: "Some foobar err",
+	if err != nil {
+		switch err.Code {
+		default:
+			resp.Error = &Error{
+				Code:    err.Code,
+				Message: err.Message,
+			}
 		}
 	}
 
