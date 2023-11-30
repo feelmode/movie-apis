@@ -40,6 +40,15 @@ func getDb() *gorm.DB {
 func DeleteByIDHandler(w http.ResponseWriter, r *http.Request) {
 	var movie movie.Movie
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
+	db := getDb()
+	db.First(&movie, id)
+
+	// Not found
+	if movie.ID == 0 {
+		resp.Write(w, http.StatusNotFound, nil, nil)
+		return
+	}
+
 	getDb().Delete(&movie, id)
 	resp.Write(w, http.StatusNoContent, nil, nil)
 }
