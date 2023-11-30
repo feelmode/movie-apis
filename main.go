@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"log"
-	movieHttpHandler "main/internal/movie/http"
+	movieHttpHandler "main/internal/movie/http/handler"
 	"net/http"
 
 	"github.com/gorilla/mux"
