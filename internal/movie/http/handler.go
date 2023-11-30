@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"main/internal/movie"
 	"net/http"
+	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 func GetHandler(w http.ResponseWriter, r *http.Request) {
@@ -26,4 +29,19 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(movies)
+}
+
+func GetByIDHandler(w http.ResponseWriter, r *http.Request) {
+	id, _ := strconv.Atoi(mux.Vars(r)["id"])
+	movie := movie.Resp{
+		ID:          uint8(id),
+		Title:       "Title 1",
+		Description: "Desc 1",
+		Rating:      7,
+		Image:       "",
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(movie)
 }
