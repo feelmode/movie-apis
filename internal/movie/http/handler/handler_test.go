@@ -10,9 +10,16 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gorilla/mux"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
+
+func init() {
+	db := getDb()
+	db.Exec("DELETE FROM movies")
+	db.Exec("ALTER SEQUENCE movies_id_seq RESTART WITH 1")
+}
 
 func getDb() *gorm.DB {
 	dsn := "host=localhost user=postgres password='' dbname=movies port=5432 sslmode=disable TimeZone=UTC"
@@ -102,6 +109,12 @@ func TestGetHandler(t *testing.T) {
 func TestGetByIDHandler(t *testing.T) {
 	id, h, rr := getNewlyCreatedID()
 	req, _ := http.NewRequest("GET", "/movies/"+id, nil)
+
+	// See https://stackoverflow.com/questions/34435185/unit-testing-for-functions-that-use-gorilla-mux-url-parameters
+	req = mux.SetURLVars(req, map[string]string{
+		"id": id,
+	})
+
 	handler := http.HandlerFunc(h.GetByIDHandler)
 	handler.ServeHTTP(rr, req)
 	if status := rr.Code; status != http.StatusOK {
@@ -109,10 +122,29 @@ func TestGetByIDHandler(t *testing.T) {
 	}
 }
 
+func TestGetByIDHandlerNotFound(t *testing.T) {
+	req, _ := http.NewRequest("GET", "/movies/9999", nil)
+	req = mux.SetURLVars(req, map[string]string{
+		"id": "9999",
+	})
+
+	h := Handler{}
+	h.Db = getDb()
+	handler := http.HandlerFunc(h.GetByIDHandler)
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+	if status := rr.Code; status != http.StatusNotFound {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNotFound)
+	}
+}
+
 func TestPatchHandler(t *testing.T) {
 	id, h, rr := getNewlyCreatedID()
 	jsonStr := []byte(`{"title": "Title 1a", "description": "Desc 1a"}`)
 	req, _ := http.NewRequest("PATCH", "/movies/"+id, bytes.NewBuffer(jsonStr))
+	req = mux.SetURLVars(req, map[string]string{
+		"id": id,
+	})
 	req.Header.Set("Content-Type", "application/json")
 	handler := http.HandlerFunc(h.PatchByIDHandler)
 	handler.ServeHTTP(rr, req)
@@ -135,4 +167,79 @@ func getNewlyCreatedID() (string, Handler, *httptest.ResponseRecorder) {
 	id := fmt.Sprintf("%v", resp["data"]["id"])
 
 	return id, h, rr
+}
+
+func TestDeleteByIDHandler(t *testing.T) {
+	id, _, _ := getNewlyCreatedID()
+	req, _ := http.NewRequest("GET", "/movies/"+id, nil)
+	req = mux.SetURLVars(req, map[string]string{
+		"id": id,
+	})
+	h := Handler{}
+	h.Db = getDb()
+
+	// Must regenerate these stuff to get the actual data
+	rr := httptest.NewRecorder()
+
+	handler := http.HandlerFunc(h.DeleteByIDHandler)
+	handler.ServeHTTP(rr, req)
+	if status := rr.Code; status != http.StatusNoContent {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNoContent)
+	}
+}
+
+func TestDeleteByIDHandlerNotFound(t *testing.T) {
+	req, _ := http.NewRequest("GET", "/movies/9999", nil)
+	req = mux.SetURLVars(req, map[string]string{
+		"id": "9999",
+	})
+	h := Handler{}
+	h.Db = getDb()
+
+	// Must regenerate these stuff to get the actual data
+	rr := httptest.NewRecorder()
+
+	handler := http.HandlerFunc(h.DeleteByIDHandler)
+	handler.ServeHTTP(rr, req)
+	if status := rr.Code; status != http.StatusNotFound {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNotFound)
+	}
+}
+
+func TestPatchHandlerBadRequest(t *testing.T) {
+	id, _, _ := getNewlyCreatedID()
+	jsonStr := []byte(`{"rating": 9}`)
+	req, _ := http.NewRequest("PATCH", "/movies/"+id, bytes.NewBuffer(jsonStr))
+	req.Header.Set("Content-Type", "application/json")
+	req = mux.SetURLVars(req, map[string]string{
+		"id": id,
+	})
+
+	h := Handler{}
+	h.Db = getDb()
+	handler := http.HandlerFunc(h.PatchByIDHandler)
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+	if status := rr.Code; status != http.StatusBadRequest {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusBadRequest)
+	}
+}
+
+func TestPatchHandlerNotFound(t *testing.T) {
+	jsonStr := []byte(`{"title": "Title 1a", "description": "Desc 1a"}`)
+	req, _ := http.NewRequest("PATCH", "/movies/999999", bytes.NewBuffer(jsonStr))
+	req.Header.Set("Content-Type", "application/json")
+	req = mux.SetURLVars(req, map[string]string{
+		"id": "999999",
+	})
+
+	h := Handler{}
+	h.Db = getDb()
+	handler := http.HandlerFunc(h.PatchByIDHandler)
+
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+	if status := rr.Code; status != http.StatusNotFound {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNotFound)
+	}
 }

@@ -26,6 +26,8 @@ To create the table, copy the contents of `/scripts/schema.sql`, then paste and 
 
 This command will also shows the test coverage.
 
+> WARNING: It will truncate the `movies` table.
+
 ```
 go test -cover ./internal/movie/http/handler/ -count=1
 ```
