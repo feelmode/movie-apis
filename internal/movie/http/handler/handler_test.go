@@ -69,6 +69,41 @@ func TestPostHandler(t *testing.T) {
 	}
 }
 
+func TestPostHandlerBadRequestNoBody(t *testing.T) {
+	var jsonStr = []byte(``)
+	req, _ := http.NewRequest("POST", "/movies", bytes.NewBuffer(jsonStr))
+	req.Header.Set("Content-Type", "application/json")
+
+	h := Handler{}
+	h.Db = getDb()
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(h.PostHandler)
+	handler.ServeHTTP(rr, req)
+	if status := rr.Code; status != http.StatusBadRequest {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusBadRequest)
+	}
+}
+
+func TestPatchByIDHandlerBadRequestNoBody(t *testing.T) {
+	var jsonStr = []byte(``)
+	req, _ := http.NewRequest("PATCH", "/movies/9999", bytes.NewBuffer(jsonStr))
+	req.Header.Set("Content-Type", "application/json")
+	req = mux.SetURLVars(req, map[string]string{
+		"id": "9999",
+	})
+
+	h := Handler{}
+	h.Db = getDb()
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(h.PatchByIDHandler)
+	handler.ServeHTTP(rr, req)
+	if status := rr.Code; status != http.StatusBadRequest {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusBadRequest)
+	}
+}
+
 func TestPostHandlerBadRequest(t *testing.T) {
 	var jsonStr = []byte(`{"rating": 7, "image": "image1.jpg"}`)
 	req, _ := http.NewRequest("POST", "/movies", bytes.NewBuffer(jsonStr))
