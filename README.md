@@ -24,7 +24,7 @@ To create the table, copy the contents of `/scripts/schema.sql`, then paste and 
 
 ### Run the Tests
 
-This command will also shows the test coverage.
+This command will also shows the test coverage. Expect it to be 100%.
 
 > WARNING: It will truncate the `movies` table.
 
