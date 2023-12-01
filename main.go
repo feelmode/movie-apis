@@ -11,6 +11,8 @@ import (
 	"gorm.io/gorm"
 )
 
+const baseMoviePath = "/movie"
+
 func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -22,11 +24,11 @@ func main() {
 	h := &movieHttpHandler.Handler{}
 	h.Db = getDb()
 
-	r.HandleFunc("/movies", h.GetHandler).Methods("GET")
-	r.HandleFunc("/movies", h.PostHandler).Methods("POST")
-	r.HandleFunc("/movies/{id}", h.DeleteByIDHandler).Methods("DELETE")
-	r.HandleFunc("/movies/{id}", h.GetByIDHandler).Methods("GET")
-	r.HandleFunc("/movies/{id}", h.PatchByIDHandler).Methods("PATCH")
+	r.HandleFunc(baseMoviePath, h.GetHandler).Methods("GET")
+	r.HandleFunc(baseMoviePath, h.PostHandler).Methods("POST")
+	r.HandleFunc(baseMoviePath+"/{id}", h.DeleteByIDHandler).Methods("DELETE")
+	r.HandleFunc(baseMoviePath+"/{id}", h.GetByIDHandler).Methods("GET")
+	r.HandleFunc(baseMoviePath+"/{id}", h.PatchByIDHandler).Methods("PATCH")
 
 	// Bind to a port and pass our router in
 	log.Fatal(http.ListenAndServe(":8000", r))

@@ -15,6 +15,10 @@ import (
 	"gorm.io/gorm"
 )
 
+const baseMoviePath = "/movie"
+const fakeID = "99"
+const pathWithID = baseMoviePath + "/" + fakeID
+
 func init() {
 	db := getDb()
 	db.Exec("DELETE FROM movies")
@@ -55,7 +59,7 @@ func TestCreateResp(t *testing.T) {
 
 func TestPostHandler(t *testing.T) {
 	var jsonStr = []byte(`{"title": "Title 1", "description": "Desc 1"}`)
-	req, _ := http.NewRequest("POST", "/movies", bytes.NewBuffer(jsonStr))
+	req, _ := http.NewRequest("POST", baseMoviePath, bytes.NewBuffer(jsonStr))
 	req.Header.Set("Content-Type", "application/json")
 
 	h := Handler{}
@@ -71,7 +75,7 @@ func TestPostHandler(t *testing.T) {
 
 func TestPostHandlerBadRequestNoBody(t *testing.T) {
 	var jsonStr = []byte(``)
-	req, _ := http.NewRequest("POST", "/movies", bytes.NewBuffer(jsonStr))
+	req, _ := http.NewRequest("POST", baseMoviePath, bytes.NewBuffer(jsonStr))
 	req.Header.Set("Content-Type", "application/json")
 
 	h := Handler{}
@@ -87,10 +91,10 @@ func TestPostHandlerBadRequestNoBody(t *testing.T) {
 
 func TestPatchByIDHandlerBadRequestNoBody(t *testing.T) {
 	var jsonStr = []byte(``)
-	req, _ := http.NewRequest("PATCH", "/movies/9999", bytes.NewBuffer(jsonStr))
+	req, _ := http.NewRequest("PATCH", pathWithID, bytes.NewBuffer(jsonStr))
 	req.Header.Set("Content-Type", "application/json")
 	req = mux.SetURLVars(req, map[string]string{
-		"id": "9999",
+		"id": fakeID,
 	})
 
 	h := Handler{}
@@ -106,7 +110,7 @@ func TestPatchByIDHandlerBadRequestNoBody(t *testing.T) {
 
 func TestPostHandlerBadRequest(t *testing.T) {
 	var jsonStr = []byte(`{"rating": 7, "image": "image1.jpg"}`)
-	req, _ := http.NewRequest("POST", "/movies", bytes.NewBuffer(jsonStr))
+	req, _ := http.NewRequest("POST", baseMoviePath, bytes.NewBuffer(jsonStr))
 	req.Header.Set("Content-Type", "application/json")
 
 	h := Handler{}
@@ -125,7 +129,7 @@ func TestPostHandlerBadRequest(t *testing.T) {
 }
 
 func TestGetHandler(t *testing.T) {
-	req, err := http.NewRequest("GET", "/movies", nil)
+	req, err := http.NewRequest("GET", baseMoviePath, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -143,7 +147,7 @@ func TestGetHandler(t *testing.T) {
 
 func TestGetByIDHandler(t *testing.T) {
 	id, h, rr := getNewlyCreatedID()
-	req, _ := http.NewRequest("GET", "/movies/"+id, nil)
+	req, _ := http.NewRequest("GET", baseMoviePath+"/"+id, nil)
 
 	// See https://stackoverflow.com/questions/34435185/unit-testing-for-functions-that-use-gorilla-mux-url-parameters
 	req = mux.SetURLVars(req, map[string]string{
@@ -158,9 +162,9 @@ func TestGetByIDHandler(t *testing.T) {
 }
 
 func TestGetByIDHandlerNotFound(t *testing.T) {
-	req, _ := http.NewRequest("GET", "/movies/9999", nil)
+	req, _ := http.NewRequest("GET", pathWithID, nil)
 	req = mux.SetURLVars(req, map[string]string{
-		"id": "9999",
+		"id": fakeID,
 	})
 
 	h := Handler{}
@@ -176,7 +180,7 @@ func TestGetByIDHandlerNotFound(t *testing.T) {
 func TestPatchHandler(t *testing.T) {
 	id, h, rr := getNewlyCreatedID()
 	jsonStr := []byte(`{"title": "Title 1a", "description": "Desc 1a"}`)
-	req, _ := http.NewRequest("PATCH", "/movies/"+id, bytes.NewBuffer(jsonStr))
+	req, _ := http.NewRequest("PATCH", baseMoviePath+"/"+id, bytes.NewBuffer(jsonStr))
 	req = mux.SetURLVars(req, map[string]string{
 		"id": id,
 	})
@@ -190,7 +194,7 @@ func TestPatchHandler(t *testing.T) {
 
 func getNewlyCreatedID() (string, Handler, *httptest.ResponseRecorder) {
 	var jsonStr = []byte(`{"title": "Title 1", "description": "Desc 1"}`)
-	req, _ := http.NewRequest("POST", "/movies", bytes.NewBuffer(jsonStr))
+	req, _ := http.NewRequest("POST", baseMoviePath, bytes.NewBuffer(jsonStr))
 	req.Header.Set("Content-Type", "application/json")
 	h := Handler{}
 	h.Db = getDb()
@@ -206,7 +210,7 @@ func getNewlyCreatedID() (string, Handler, *httptest.ResponseRecorder) {
 
 func TestDeleteByIDHandler(t *testing.T) {
 	id, _, _ := getNewlyCreatedID()
-	req, _ := http.NewRequest("GET", "/movies/"+id, nil)
+	req, _ := http.NewRequest("GET", baseMoviePath+"/"+id, nil)
 	req = mux.SetURLVars(req, map[string]string{
 		"id": id,
 	})
@@ -224,9 +228,9 @@ func TestDeleteByIDHandler(t *testing.T) {
 }
 
 func TestDeleteByIDHandlerNotFound(t *testing.T) {
-	req, _ := http.NewRequest("GET", "/movies/9999", nil)
+	req, _ := http.NewRequest("GET", pathWithID, nil)
 	req = mux.SetURLVars(req, map[string]string{
-		"id": "9999",
+		"id": fakeID,
 	})
 	h := Handler{}
 	h.Db = getDb()
@@ -244,7 +248,7 @@ func TestDeleteByIDHandlerNotFound(t *testing.T) {
 func TestPatchHandlerBadRequest(t *testing.T) {
 	id, _, _ := getNewlyCreatedID()
 	jsonStr := []byte(`{"rating": 9}`)
-	req, _ := http.NewRequest("PATCH", "/movies/"+id, bytes.NewBuffer(jsonStr))
+	req, _ := http.NewRequest("PATCH", baseMoviePath+"/"+id, bytes.NewBuffer(jsonStr))
 	req.Header.Set("Content-Type", "application/json")
 	req = mux.SetURLVars(req, map[string]string{
 		"id": id,
@@ -262,10 +266,10 @@ func TestPatchHandlerBadRequest(t *testing.T) {
 
 func TestPatchHandlerNotFound(t *testing.T) {
 	jsonStr := []byte(`{"title": "Title 1a", "description": "Desc 1a"}`)
-	req, _ := http.NewRequest("PATCH", "/movies/999999", bytes.NewBuffer(jsonStr))
+	req, _ := http.NewRequest("PATCH", pathWithID, bytes.NewBuffer(jsonStr))
 	req.Header.Set("Content-Type", "application/json")
 	req = mux.SetURLVars(req, map[string]string{
-		"id": "999999",
+		"id": fakeID,
 	})
 
 	h := Handler{}
