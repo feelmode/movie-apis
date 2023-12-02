@@ -3,7 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"main/internal/movie"
-	"main/internal/movie/rating"
+	"main/internal/rating"
 	resp "main/pkg/http/response"
 	"net/http"
 	"strconv"
