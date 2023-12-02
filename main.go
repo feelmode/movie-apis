@@ -11,6 +11,7 @@ import (
 )
 
 const baseMoviePath = "/movies"
+const moviePathWithID = baseMoviePath + "/{id}"
 
 func main() {
 	r := mux.NewRouter()
@@ -25,9 +26,9 @@ func main() {
 
 	r.HandleFunc(baseMoviePath, h.GetHandler).Methods("GET")
 	r.HandleFunc(baseMoviePath, h.PostHandler).Methods("POST")
-	r.HandleFunc(baseMoviePath+"/{id}", h.DeleteByIDHandler).Methods("DELETE")
-	r.HandleFunc(baseMoviePath+"/{id}", h.GetByIDHandler).Methods("GET")
-	r.HandleFunc(baseMoviePath+"/{id}", h.PatchByIDHandler).Methods("PATCH")
+	r.HandleFunc(moviePathWithID, h.DeleteByIDHandler).Methods("DELETE")
+	r.HandleFunc(moviePathWithID, h.GetByIDHandler).Methods("GET")
+	r.HandleFunc(moviePathWithID, h.PatchByIDHandler).Methods("PATCH")
 
 	// Bind to a port and pass our router in
 	log.Fatal(http.ListenAndServe(":8000", r))
