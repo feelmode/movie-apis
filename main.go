@@ -11,7 +11,7 @@ import (
 	"gorm.io/gorm"
 )
 
-const baseMoviePath = "/movie"
+const baseMoviePath = "/movies"
 
 func main() {
 	r := mux.NewRouter()
