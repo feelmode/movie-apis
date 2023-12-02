@@ -52,7 +52,6 @@ func TestCreateResp(t *testing.T) {
 func TestPostHandler(t *testing.T) {
 	var jsonStr = []byte(`{"title": "Title 1", "description": "Desc 1"}`)
 	req, _ := http.NewRequest("POST", baseMoviePath, bytes.NewBuffer(jsonStr))
-	req.Header.Set("Content-Type", "application/json")
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(h.PostHandler)
 	handler.ServeHTTP(rr, req)
@@ -64,7 +63,6 @@ func TestPostHandler(t *testing.T) {
 func TestPostHandlerBadRequestNoBody(t *testing.T) {
 	var jsonStr = []byte(``)
 	req, _ := http.NewRequest("POST", baseMoviePath, bytes.NewBuffer(jsonStr))
-	req.Header.Set("Content-Type", "application/json")
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(h.PostHandler)
 	handler.ServeHTTP(rr, req)
@@ -76,7 +74,6 @@ func TestPostHandlerBadRequestNoBody(t *testing.T) {
 func TestPatchByIDHandlerBadRequestNoBody(t *testing.T) {
 	var jsonStr = []byte(``)
 	req, _ := http.NewRequest("PATCH", pathWithID, bytes.NewBuffer(jsonStr))
-	req.Header.Set("Content-Type", "application/json")
 	req = mux.SetURLVars(req, map[string]string{
 		"id": fakeID,
 	})
@@ -91,7 +88,6 @@ func TestPatchByIDHandlerBadRequestNoBody(t *testing.T) {
 func TestPostHandlerBadRequest(t *testing.T) {
 	var jsonStr = []byte(`{"rating": 7, "image": "image1.jpg"}`)
 	req, _ := http.NewRequest("POST", baseMoviePath, bytes.NewBuffer(jsonStr))
-	req.Header.Set("Content-Type", "application/json")
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(h.PostHandler)
 	handler.ServeHTTP(rr, req)
@@ -153,7 +149,6 @@ func TestPatchHandler(t *testing.T) {
 	req = mux.SetURLVars(req, map[string]string{
 		"id": id,
 	})
-	req.Header.Set("Content-Type", "application/json")
 	handler := http.HandlerFunc(h.PatchByIDHandler)
 	handler.ServeHTTP(rr, req)
 	if status := rr.Code; status != http.StatusOK {
@@ -164,7 +159,6 @@ func TestPatchHandler(t *testing.T) {
 func getNewlyCreatedID() (string, Handler, *httptest.ResponseRecorder) {
 	var jsonStr = []byte(`{"title": "Title 1", "description": "Desc 1"}`)
 	req, _ := http.NewRequest("POST", baseMoviePath, bytes.NewBuffer(jsonStr))
-	req.Header.Set("Content-Type", "application/json")
 	h := *h
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(h.PostHandler)
@@ -213,7 +207,6 @@ func TestPatchHandlerBadRequest(t *testing.T) {
 	id, _, _ := getNewlyCreatedID()
 	jsonStr := []byte(`{"rating": 9}`)
 	req, _ := http.NewRequest("PATCH", baseMoviePath+"/"+id, bytes.NewBuffer(jsonStr))
-	req.Header.Set("Content-Type", "application/json")
 	req = mux.SetURLVars(req, map[string]string{
 		"id": id,
 	})
@@ -228,7 +221,6 @@ func TestPatchHandlerBadRequest(t *testing.T) {
 func TestPatchHandlerNotFound(t *testing.T) {
 	jsonStr := []byte(`{"title": "Title 1a", "description": "Desc 1a"}`)
 	req, _ := http.NewRequest("PATCH", pathWithID, bytes.NewBuffer(jsonStr))
-	req.Header.Set("Content-Type", "application/json")
 	req = mux.SetURLVars(req, map[string]string{
 		"id": fakeID,
 	})
