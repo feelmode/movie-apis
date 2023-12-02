@@ -14,7 +14,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-const baseMoviePath = "/movie"
+const baseMoviePath = "/movies"
 const fakeID = "99"
 const pathWithID = baseMoviePath + "/" + fakeID
 
