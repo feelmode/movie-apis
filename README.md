@@ -29,7 +29,7 @@ This command will also shows the test coverage. Expect it to be 100%.
 > WARNING: It will truncate the `movies` table.
 
 ```
-go test -cover ./internal/movie/http/handler/ -count=1
+go clean -testcache && go test -cover ./internal/... -count=1
 ```
 
 ### Run the HTTP Server

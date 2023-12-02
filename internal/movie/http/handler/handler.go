@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"main/internal/movie"
+	"main/internal/movie/rating"
 	resp "main/pkg/http/response"
 	"net/http"
 	"strconv"
@@ -95,7 +96,7 @@ func (h Handler) PatchByIDHandler(w http.ResponseWriter, r *http.Request) {
 	// Save
 	movie.Title = req.Title
 	movie.Description = req.Description
-	movie.Rating = req.Rating
+	movie.Rating = rating.Round(req.Rating)
 	movie.Image = req.Image
 	h.Db.Save(&movie)
 
@@ -116,6 +117,7 @@ func (h Handler) PostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	reqResp.Rating = rating.Round(reqResp.Rating)
 	h.Db.Create(&reqResp)
 	resp.Write(w, http.StatusOK, nil, createResp(reqResp))
 }
