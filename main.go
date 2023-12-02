@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	movieHttpHandler "main/internal/movie/http/handler"
-	gormDB "main/pkg/http/response/database/gorm"
+	gormDB "main/pkg/database/gorm"
 	"net/http"
 
 	"github.com/gorilla/mux"
