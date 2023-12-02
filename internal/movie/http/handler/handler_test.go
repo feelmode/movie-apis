@@ -5,34 +5,26 @@ import (
 	"encoding/json"
 	"fmt"
 	"main/internal/movie"
+	gormDB "main/pkg/database/gorm"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 
 	"github.com/gorilla/mux"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
 const baseMoviePath = "/movie"
 const fakeID = "99"
 const pathWithID = baseMoviePath + "/" + fakeID
 
+var h *Handler
+
 func init() {
-	db := getDb()
-	db.Exec("DELETE FROM movies")
-	db.Exec("ALTER SEQUENCE movies_id_seq RESTART WITH 1")
-}
-
-func getDb() *gorm.DB {
-	dsn := "host=localhost user=postgres password='' dbname=movies port=5432 sslmode=disable TimeZone=UTC"
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		panic(err.Error())
-	}
-
-	return db
+	h = &Handler{}
+	h.Db = gormDB.GetDB()
+	h.Db.Exec("DELETE FROM movies")
+	h.Db.Exec("ALTER SEQUENCE movies_id_seq RESTART WITH 1")
 }
 
 func TestCreateResp(t *testing.T) {
@@ -61,10 +53,6 @@ func TestPostHandler(t *testing.T) {
 	var jsonStr = []byte(`{"title": "Title 1", "description": "Desc 1"}`)
 	req, _ := http.NewRequest("POST", baseMoviePath, bytes.NewBuffer(jsonStr))
 	req.Header.Set("Content-Type", "application/json")
-
-	h := Handler{}
-	h.Db = getDb()
-
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(h.PostHandler)
 	handler.ServeHTTP(rr, req)
@@ -77,10 +65,6 @@ func TestPostHandlerBadRequestNoBody(t *testing.T) {
 	var jsonStr = []byte(``)
 	req, _ := http.NewRequest("POST", baseMoviePath, bytes.NewBuffer(jsonStr))
 	req.Header.Set("Content-Type", "application/json")
-
-	h := Handler{}
-	h.Db = getDb()
-
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(h.PostHandler)
 	handler.ServeHTTP(rr, req)
@@ -96,10 +80,6 @@ func TestPatchByIDHandlerBadRequestNoBody(t *testing.T) {
 	req = mux.SetURLVars(req, map[string]string{
 		"id": fakeID,
 	})
-
-	h := Handler{}
-	h.Db = getDb()
-
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(h.PatchByIDHandler)
 	handler.ServeHTTP(rr, req)
@@ -112,10 +92,6 @@ func TestPostHandlerBadRequest(t *testing.T) {
 	var jsonStr = []byte(`{"rating": 7, "image": "image1.jpg"}`)
 	req, _ := http.NewRequest("POST", baseMoviePath, bytes.NewBuffer(jsonStr))
 	req.Header.Set("Content-Type", "application/json")
-
-	h := Handler{}
-	h.Db = getDb()
-
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(h.PostHandler)
 	handler.ServeHTTP(rr, req)
@@ -133,10 +109,6 @@ func TestGetHandler(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	h := Handler{}
-	h.Db = getDb()
-
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(h.GetHandler)
 	handler.ServeHTTP(rr, req)
@@ -146,7 +118,7 @@ func TestGetHandler(t *testing.T) {
 }
 
 func TestGetByIDHandler(t *testing.T) {
-	id, h, rr := getNewlyCreatedID()
+	id, _, rr := getNewlyCreatedID()
 	req, _ := http.NewRequest("GET", baseMoviePath+"/"+id, nil)
 
 	// See https://stackoverflow.com/questions/34435185/unit-testing-for-functions-that-use-gorilla-mux-url-parameters
@@ -166,9 +138,6 @@ func TestGetByIDHandlerNotFound(t *testing.T) {
 	req = mux.SetURLVars(req, map[string]string{
 		"id": fakeID,
 	})
-
-	h := Handler{}
-	h.Db = getDb()
 	handler := http.HandlerFunc(h.GetByIDHandler)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -178,7 +147,7 @@ func TestGetByIDHandlerNotFound(t *testing.T) {
 }
 
 func TestPatchHandler(t *testing.T) {
-	id, h, rr := getNewlyCreatedID()
+	id, _, rr := getNewlyCreatedID()
 	jsonStr := []byte(`{"title": "Title 1a", "description": "Desc 1a"}`)
 	req, _ := http.NewRequest("PATCH", baseMoviePath+"/"+id, bytes.NewBuffer(jsonStr))
 	req = mux.SetURLVars(req, map[string]string{
@@ -196,8 +165,7 @@ func getNewlyCreatedID() (string, Handler, *httptest.ResponseRecorder) {
 	var jsonStr = []byte(`{"title": "Title 1", "description": "Desc 1"}`)
 	req, _ := http.NewRequest("POST", baseMoviePath, bytes.NewBuffer(jsonStr))
 	req.Header.Set("Content-Type", "application/json")
-	h := Handler{}
-	h.Db = getDb()
+	h := *h
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(h.PostHandler)
 	handler.ServeHTTP(rr, req)
@@ -214,8 +182,6 @@ func TestDeleteByIDHandler(t *testing.T) {
 	req = mux.SetURLVars(req, map[string]string{
 		"id": id,
 	})
-	h := Handler{}
-	h.Db = getDb()
 
 	// Must regenerate these stuff to get the actual data
 	rr := httptest.NewRecorder()
@@ -232,8 +198,6 @@ func TestDeleteByIDHandlerNotFound(t *testing.T) {
 	req = mux.SetURLVars(req, map[string]string{
 		"id": fakeID,
 	})
-	h := Handler{}
-	h.Db = getDb()
 
 	// Must regenerate these stuff to get the actual data
 	rr := httptest.NewRecorder()
@@ -253,9 +217,6 @@ func TestPatchHandlerBadRequest(t *testing.T) {
 	req = mux.SetURLVars(req, map[string]string{
 		"id": id,
 	})
-
-	h := Handler{}
-	h.Db = getDb()
 	handler := http.HandlerFunc(h.PatchByIDHandler)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -271,9 +232,6 @@ func TestPatchHandlerNotFound(t *testing.T) {
 	req = mux.SetURLVars(req, map[string]string{
 		"id": fakeID,
 	})
-
-	h := Handler{}
-	h.Db = getDb()
 	handler := http.HandlerFunc(h.PatchByIDHandler)
 
 	rr := httptest.NewRecorder()
