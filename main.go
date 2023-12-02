@@ -4,11 +4,10 @@ import (
 	"encoding/json"
 	"log"
 	movieHttpHandler "main/internal/movie/http/handler"
+	gormDB "main/pkg/http/response/database/gorm"
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
 const baseMoviePath = "/movies"
@@ -22,7 +21,7 @@ func main() {
 	})
 
 	h := &movieHttpHandler.Handler{}
-	h.Db = getDb()
+	h.Db = gormDB.GetDB()
 
 	r.HandleFunc(baseMoviePath, h.GetHandler).Methods("GET")
 	r.HandleFunc(baseMoviePath, h.PostHandler).Methods("POST")
@@ -32,14 +31,4 @@ func main() {
 
 	// Bind to a port and pass our router in
 	log.Fatal(http.ListenAndServe(":8000", r))
-}
-
-func getDb() *gorm.DB {
-	dsn := "host=localhost user=postgres password='' dbname=movies port=5432 sslmode=disable TimeZone=UTC"
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		panic(err.Error())
-	}
-
-	return db
 }
