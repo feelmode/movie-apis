@@ -60,6 +60,17 @@ func TestPostHandler(t *testing.T) {
 	}
 }
 
+func TestPostHandlerBadRequestRatingOutOfRange(t *testing.T) {
+	var jsonStr = []byte(`{"title": "Title 1", "description": "Desc 1", "rating": 11}`)
+	req, _ := http.NewRequest("POST", baseMoviePath, bytes.NewBuffer(jsonStr))
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(h.PostHandler)
+	handler.ServeHTTP(rr, req)
+	if status := rr.Code; status != http.StatusBadRequest {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusBadRequest)
+	}
+}
+
 func TestPostHandlerBadRequestNoBody(t *testing.T) {
 	var jsonStr = []byte(``)
 	req, _ := http.NewRequest("POST", baseMoviePath, bytes.NewBuffer(jsonStr))
