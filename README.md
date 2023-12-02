@@ -1,4 +1,4 @@
-# Movies API
+# Movie APIs
 
 This repository contains the REST APIs for `/movies` entity. The layout of this repository is based on [Standard Go Project Layout](https://github.com/golang-standards/project-layout).
 
